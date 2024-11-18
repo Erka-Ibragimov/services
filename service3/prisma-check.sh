@@ -24,4 +24,5 @@
 
 npx prisma generate
 npx prisma db push
+node dist/seed.js
 node dist/main
