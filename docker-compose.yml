@@ -1,0 +1,76 @@
+version: "3.8"
+services:
+  service1:
+    build: ./service1
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - NODE_ENV=development
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - POSTGRES_HOST=pg
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=root123
+      - POSTGRES_DB=postgres
+    depends_on:
+      - pg
+      - rabbitmq
+
+  service2:
+    build: ./service2
+    restart: always
+    ports:
+      - "3002:3002"
+    environment:
+      - PORT=3002
+      - NODE_ENV=development
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - POSTGRES_HOST=pg
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=root123
+      - POSTGRES_DB=postgres
+    depends_on:
+      - pg
+      - rabbitmq
+
+  service3:
+    build: ./service3
+    restart: always
+    ports:
+      - "3003:3003"
+    environment:
+      - PORT=3003
+      - NODE_ENV=development
+      - DATABASE_URL=postgres://postgres:root123@pg:5432/dbb?connect_timeout=300
+    depends_on:
+      - pg
+
+  pg:
+    image: postgres:latest
+    restart: always
+    volumes:
+      - ./init-multiple-databases.sh:/docker-entrypoint-initdb.d/init-multiple-databases.sh
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root123
+      POSTGRES_MULTIPLE_DATABASES: dbb
+    ports:
+      - "5432:5432"
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+volumes:
+  pg_data:
